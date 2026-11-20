@@ -12,7 +12,7 @@ class EnsureUserHasRole
     {
         $user = $request->user();
         if (!$user || !in_array($user->role, $roles, true)) {
-            abort(403, 'Anda tidak memiliki hak akses.');
+            abort(403, 'role tidak sesuai.');
         }
         return $next($request);
     }

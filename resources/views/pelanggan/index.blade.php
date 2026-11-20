@@ -1,53 +1,66 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Daftar Pelanggan</title>
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/app.css') }}" >
-</head>
-<body>
-    <p>
-        Halo, <strong>{{ Auth::user()->name }}</strong> (Role: {{ Auth::user()->role }}) |
-        <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-            @csrf
-            <button type="submit">Logout</button>
-        </form>
-    </p>
-    
-    <h2>Data Pelanggan Laundry</h2>
-    <a href="{{ route('pelanggan.create') }}">+ Tambah Pelanggan Baru</a>
-    <br><br>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nama</th>
-                <th>Alamat</th>
-                <th>No HP</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($pelanggan as $item)
-            <tr>
-                <td>{{ $item->id }}</td>
-                <td>{{ $item->nama }}</td>
-                <td>{{ $item->alamat }}</td>
-                <td>{{ $item->no_hp }}</td>
-                <td>
-                    <a href="{{ route('pelanggan.edit', $item->id) }}">Edit</a>
-                    
-                    @if(Auth::user()->role === 'admin')
-                        | 
-                        <form action="{{ route('pelanggan.destroy', $item->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" onclick="return confirm('Hapus data ini?')">Hapus</button>
-                        </form>
-                    @endif
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</body>
-</html>
+@extends('layout.layout')
+
+@section('title', 'Data Pelanggan - Laundry-In')
+
+@section('content')
+<div class="page-heading">
+    <div class="breadcrumb">Laundry-In / <span>Data Pelanggan</span></div>
+    <h1>Data Pelanggan</h1>
+    <p>Kelola informasi kontak dan alamat pelanggan Laundry-In</p>
+</div>
+
+@if (session('success'))
+    <div class="pesan">{{ session('success') }}</div>
+@endif
+
+<div class="inventory-card">
+    <div class="card-header">
+        <div class="card-title">
+            <h2>Daftar Pelanggan</h2>
+            <p>Menampilkan {{ $pelanggan->count() }} data pelanggan terdaftar</p>
+        </div>
+        <a href="{{ route('pelanggan.create') }}" class="btn btn-tambah">+ Tambah Pelanggan</a>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Pelanggan</th>
+                    <th>No. HP</th>
+                    <th>Alamat</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($pelanggan as $item)
+                    <tr>
+                        <td class="nomor">{{ $loop->iteration }}</td>
+                        <td class="merek">{{ $item->nama }}</td>
+                        <td>{{ $item->no_hp }}</td>
+                        <td>{{ $item->alamat }}</td>
+                        <td>
+                            <div class="aksi">
+                                <a href="{{ route('pelanggan.edit', $item->id) }}" class="btn btn-ubah">Ubah</a>
+
+                                @if (auth()->user()->role === 'admin')
+                                    <form action="{{ route('pelanggan.destroy', $item->id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Yakin mau hapus pelanggan ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-hapus">Hapus</button>
+                                    </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="empty-data">Belum ada data pelanggan.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+@endsection
